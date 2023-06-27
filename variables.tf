@@ -89,7 +89,7 @@ variable "tolerations" {
     effect   = optional(string)
   }))
   default = [{
-    key      = "app.vessl.ai/dedicated"
+    key      = "v1.k8s.vessl.ai/dedicated"
     operator = "Exists"
     effect   = "NoSchedule"
   }]
