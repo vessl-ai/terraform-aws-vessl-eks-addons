@@ -82,3 +82,15 @@ resource "aws_eks_addon" "ebs_csi_driver" {
     }
   })
 }
+
+resource "kubernetes_storage_class_v1" "ebs-csi" {
+  count = var.ebs_csi_driver != null ? 1 : 0
+
+  metadata {
+    name = var.ebs_csi_driver.storage_class_name
+  }
+
+  storage_provisioner = "ebs.csi.aws.com"
+  reclaim_policy      = "Delete"
+  volume_binding_mode = "WaitForFirstConsumer"
+}
