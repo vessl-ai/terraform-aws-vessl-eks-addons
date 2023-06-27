@@ -53,12 +53,35 @@ resource "aws_eks_addon" "vpc_cni" {
   resolve_conflicts_on_update = "OVERWRITE"
 }
 
+data "aws_iam_policy" "ebs_csi_policy" {
+  arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+}
+
+module "ebs_csi_irsa_role" {
+  count = var.ebs_csi_driver != null ? 1 : 0
+
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "5.22.0"
+
+  role_name             = "${var.cluster_name}-ebs-csi"
+  attach_ebs_csi_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn               = var.cluster_oidc_provider_arn
+      namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
+    }
+  }
+}
+
 resource "aws_eks_addon" "ebs_csi_driver" {
   count = var.ebs_csi_driver != null ? 1 : 0
 
-  cluster_name                = var.cluster_name
-  addon_name                  = "aws-ebs-csi-driver"
-  addon_version               = var.ebs_csi_driver.version
+  cluster_name             = var.cluster_name
+  addon_name               = "aws-ebs-csi-driver"
+  addon_version            = var.ebs_csi_driver.version
+  service_account_role_arn = module.ebs_csi_irsa_role[0].iam_role_arn
+
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
   configuration_values = jsonencode({
