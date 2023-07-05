@@ -24,7 +24,8 @@ variable "nginx_controller" {
       "service.beta.kubernetes.io/aws-load-balancer-ssl-ports"               = "443"
       "service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout" = "60"
     })
-    ssl_cert_arn = optional(string, "")
+    ssl_cert_arn      = optional(string, "")
+    public_subnet_ids = optional(list(string), [])
   })
   default = null
 }

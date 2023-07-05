@@ -22,12 +22,19 @@ locals {
       }
     ]
   ]))
-  nginx_controller_service_annotations = var.nginx_controller.ssl_cert_arn != "" ? merge(
-    {
-      "service.beta.kubernetes.io/aws-load-balancer-ssl-cert" = var.nginx_controller.ssl_cert_arn
-    },
-    var.nginx_controller.service_annotations,
-  ) : var.nginx_controller.service_annotations
+  nginx_controller_service_annotations = (
+    var.nginx_controller.ssl_cert_arn != "" ?
+    (length(var.nginx_controller.public_subnet_ids) > 0 ?
+      merge({
+        "service.beta.kubernetes.io/aws-load-balancer-ssl-cert" = var.nginx_controller.ssl_cert_arn
+        "service.beta.kubernetes.io/aws-load-balancer-subnets"  = join(",", var.nginx_controller.public_subnet_ids)
+      }, var.nginx_controller.service_annotations) :
+      merge({
+        "service.beta.kubernetes.io/aws-load-balancer-ssl-cert" = var.nginx_controller.ssl_cert_arn
+      }, var.nginx_controller.service_annotations)
+    ) :
+    var.nginx_controller.service_annotations
+  )
 }
 
 resource "helm_release" "nginx_ingress_controller" {
