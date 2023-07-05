@@ -38,5 +38,6 @@ module "aws_external_dns" {
   k8s_create_namespace    = false
   k8s_namespace           = var.external_dns.namespace
   helm_chart_version      = var.external_dns.version
+  helm_values             = { sources = var.external_dns.sources }
   tolerations             = var.tolerations
 }

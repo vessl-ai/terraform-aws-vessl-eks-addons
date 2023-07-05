@@ -8,6 +8,7 @@ variable "external_dns" {
     cluster_domain = string
     namespace      = optional(string, "kube-system")
     version        = optional(string, "1.13.0")
+    sources        = optional(list(string), ["service"])
   })
   default = null
 }
@@ -23,6 +24,7 @@ variable "ingress_nginx" {
       "service.beta.kubernetes.io/aws-load-balancer-backend-protocol"        = "tcp"
       "service.beta.kubernetes.io/aws-load-balancer-ssl-ports"               = "443"
       "service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout" = "60"
+      "service.beta.kubernetes.io/aws-load-balancer-attributes"              = "load_balancing.cross_zone.enabled=true"
       // "service.beta.kubernetes.io/aws-load-balancer-subnets"  = join(",", subnet_ids)
       // "service.beta.kubernetes.io/aws-load-balancer-ssl-cert" = aws_acm_certificate.cert.arn
       // "external-dns.alpha.kubernetes.io/hostname"             = "*.example.com" // => To make the dns record point to the NLB created by this service
