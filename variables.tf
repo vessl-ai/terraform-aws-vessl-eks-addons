@@ -16,6 +16,15 @@ variable "nginx_controller" {
   type = object({
     namespace = optional(string, "kube-system")
     version   = optional(string, "4.7.0")
+    // See: https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.5/guide/service/annotations
+    service_annotations = optional(map(string), {
+      "service.beta.kubernetes.io/aws-load-balancer-type"                    = "external"
+      "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type"         = "ip"
+      "service.beta.kubernetes.io/aws-load-balancer-backend-protocol"        = "tcp"
+      "service.beta.kubernetes.io/aws-load-balancer-ssl-ports"               = "443"
+      "service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout" = "60"
+    })
+    ssl_cert_arn = optional(string)
   })
   default = null
 }

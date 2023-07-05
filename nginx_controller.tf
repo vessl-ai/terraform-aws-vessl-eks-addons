@@ -43,6 +43,22 @@ resource "helm_release" "nginx_ingress_controller" {
   }
 
   dynamic "set" {
+    for_each = var.nginx_controller.ssl_cert_arn ? { "service.beta.kubernetes.io/aws-load-balancer-ssl-cert" = var.nginx_controller.ssl_cert_arn } : {}
+    content {
+      name  = "controller.service.annotations.${set.key}"
+      value = set.value
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.nginx_controller.service_annotations
+    content {
+      name  = "controller.service.annotations.${set.key}"
+      value = set.value
+    }
+  }
+
+  dynamic "set" {
     for_each = local.nginx_controller_node_selectors
     content {
       name  = "${set.value.component}.nodeSelector.${set.value.key}"
