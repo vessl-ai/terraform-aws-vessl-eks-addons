@@ -1,10 +1,10 @@
 locals {
-  nginx_controller_components = [
+  ingress_nginx_components = [
     "controller",
     "controller.admissionWebhooks.patch",
   ]
-  nginx_controller_node_selectors = distinct(flatten([
-    for component in local.nginx_controller_components : [
+  ingress_nginx_node_selectors = distinct(flatten([
+    for component in local.ingress_nginx_components : [
       for node_selector in var.node_selectors : {
         component = component
         key       = node_selector.key
@@ -12,8 +12,8 @@ locals {
       }
     ]
   ]))
-  nginx_controller_tolerations = distinct(flatten([
-    for component in local.nginx_controller_components : [
+  ingress_nginx_tolerations = distinct(flatten([
+    for component in local.ingress_nginx_components : [
       for toleration in var.tolerations : {
         component = component
         key       = toleration.key
@@ -24,14 +24,14 @@ locals {
   ]))
 }
 
-resource "helm_release" "nginx_ingress_controller" {
-  count = var.nginx_controller != null ? 1 : 0
+resource "helm_release" "ingress_nginx" {
+  count = var.ingress_nginx != null ? 1 : 0
 
   repository = "https://kubernetes.github.io/ingress-nginx"
   chart      = "ingress-nginx"
-  name       = "nginx-ingress-controller"
-  version    = var.nginx_controller.version
-  namespace  = var.nginx_controller.namespace
+  name       = "ingress-nginx"
+  version    = var.ingress_nginx.version
+  namespace  = var.ingress_nginx.namespace
 
   set {
     name  = "controller.hostNetwork"
@@ -43,7 +43,7 @@ resource "helm_release" "nginx_ingress_controller" {
   }
 
   dynamic "set" {
-    for_each = var.nginx_controller.service_annotations
+    for_each = var.ingress_nginx.service_annotations
     content {
       name  = "controller.service.annotations.${replace(set.key, ".", "\\.")}"
       value = replace(set.value, ",", "\\,")
@@ -51,7 +51,7 @@ resource "helm_release" "nginx_ingress_controller" {
   }
 
   dynamic "set" {
-    for_each = local.nginx_controller_node_selectors
+    for_each = local.ingress_nginx_node_selectors
     content {
       name  = "${set.value.component}.nodeSelector.${set.value.key}"
       value = set.value.value
@@ -59,7 +59,7 @@ resource "helm_release" "nginx_ingress_controller" {
   }
 
   dynamic "set" {
-    for_each = local.nginx_controller_tolerations
+    for_each = local.ingress_nginx_tolerations
     content {
       name  = "${set.value.component}.tolerations[0].key"
       value = set.value.key
@@ -67,7 +67,7 @@ resource "helm_release" "nginx_ingress_controller" {
   }
 
   dynamic "set" {
-    for_each = local.nginx_controller_tolerations
+    for_each = local.ingress_nginx_tolerations
     content {
       name  = "${set.value.component}.tolerations[0].operator"
       value = set.value.operator
@@ -75,7 +75,7 @@ resource "helm_release" "nginx_ingress_controller" {
   }
 
   dynamic "set" {
-    for_each = local.nginx_controller_tolerations
+    for_each = local.ingress_nginx_tolerations
     content {
       name  = "${set.value.component}.tolerations[0].effect"
       value = set.value.effect
@@ -83,7 +83,7 @@ resource "helm_release" "nginx_ingress_controller" {
   }
 
   dynamic "set" {
-    for_each = toset(local.nginx_controller_components)
+    for_each = toset(local.ingress_nginx_components)
     content {
       name  = "${set.key}.nodeSelector.kubernetes\\.io/os"
       value = "linux"

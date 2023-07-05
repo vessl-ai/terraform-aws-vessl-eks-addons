@@ -10,7 +10,7 @@ data "aws_route53_zone" "this" {
 }
 
 resource "kubernetes_service" "tcp" {
-  count = var.external_dns != null && var.nginx_controller != null ? 1 : 0
+  count = var.external_dns != null && var.ingress_nginx != null ? 1 : 0
 
   metadata {
     name      = "tcp"
