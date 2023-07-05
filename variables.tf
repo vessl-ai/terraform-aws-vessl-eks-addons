@@ -20,6 +20,7 @@ variable "ingress_nginx" {
     // See: https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.5/guide/service/annotations
     service_annotations = optional(map(string), {
       "service.beta.kubernetes.io/aws-load-balancer-type"                    = "external"
+      "service.beta.kubernetes.io/aws-load-balancer-scheme"                  = "internet-facing"
       "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type"         = "ip"
       "service.beta.kubernetes.io/aws-load-balancer-backend-protocol"        = "tcp"
       "service.beta.kubernetes.io/aws-load-balancer-ssl-ports"               = "443"
@@ -29,6 +30,7 @@ variable "ingress_nginx" {
       // "service.beta.kubernetes.io/aws-load-balancer-ssl-cert" = aws_acm_certificate.cert.arn
       // "external-dns.alpha.kubernetes.io/hostname"             = "*.example.com" // => To make the dns record point to the NLB created by this service
     })
+    ssl_termination = optional(bool, true)
   })
   default = null
 }

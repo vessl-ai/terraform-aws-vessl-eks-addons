@@ -22,6 +22,10 @@ locals {
       }
     ]
   ]))
+  service_target_ports = var.ingress_nginx.ssl_termination ? {
+    http  = "http",
+    https = "http",
+  } : {}
 }
 
 resource "helm_release" "ingress_nginx" {
@@ -34,12 +38,16 @@ resource "helm_release" "ingress_nginx" {
   namespace  = var.ingress_nginx.namespace
 
   set {
-    name  = "controller.hostNetwork"
-    value = true
-  }
-  set {
     name  = "controller.hostPort.enabled"
     value = true
+  }
+
+  dynamic "set" {
+    for_each = local.service_target_ports
+    content {
+      name  = "controller.service.targetPorts.${set.key}"
+      value = set.value
+    }
   }
 
   dynamic "set" {
