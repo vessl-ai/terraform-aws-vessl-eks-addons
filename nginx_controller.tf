@@ -22,6 +22,12 @@ locals {
       }
     ]
   ]))
+  nginx_controller_service_annotations = var.nginx_controller.ssl_cert_arn != "" ? merge(
+    {
+      "service.beta.kubernetes.io/aws-load-balancer-ssl-cert" = var.nginx_controller.ssl_cert_arn
+    },
+    var.nginx_controller.service_annotations,
+  ) : var.nginx_controller.service_annotations
 }
 
 resource "helm_release" "nginx_ingress_controller" {
@@ -43,18 +49,13 @@ resource "helm_release" "nginx_ingress_controller" {
   }
 
   dynamic "set" {
-    for_each = var.nginx_controller.ssl_cert_arn != "" ? { "service.beta.kubernetes.io/aws-load-balancer-ssl-cert" = var.nginx_controller.ssl_cert_arn } : {}
+    for_each = [
+      for annotation_key, annotation_value in local.nginx_controller_service_annotations :
+      { annotation_key = annotation_key, annotation_value = annotation_value }
+    ]
     content {
-      name  = "controller.service.annotations.${set.key}"
-      value = set.value
-    }
-  }
-
-  dynamic "set" {
-    for_each = var.nginx_controller.service_annotations
-    content {
-      name  = "controller.service.annotations.${set.key}"
-      value = set.value
+      name  = "controller.service.annotations[${set.key}].${set.value.annotation_key}"
+      value = set.value.annotation_value
     }
   }
 
