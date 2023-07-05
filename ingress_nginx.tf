@@ -37,11 +37,6 @@ resource "helm_release" "ingress_nginx" {
   version    = var.ingress_nginx.version
   namespace  = var.ingress_nginx.namespace
 
-  set {
-    name  = "controller.hostPort.enabled"
-    value = true
-  }
-
   dynamic "set" {
     for_each = local.service_target_ports
     content {
