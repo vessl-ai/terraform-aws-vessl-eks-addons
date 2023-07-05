@@ -91,7 +91,10 @@ variable "node_selectors" {
     key   = string
     value = string
   }))
-  default = []
+  default = [{
+    key   = "v1.k8s.vessl.ai/dedicated"
+    value = "manager"
+  }]
 }
 
 variable "tolerations" {

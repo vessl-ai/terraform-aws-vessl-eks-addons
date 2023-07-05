@@ -53,7 +53,7 @@ resource "helm_release" "ingress_nginx" {
   dynamic "set" {
     for_each = local.ingress_nginx_node_selectors
     content {
-      name  = "${set.value.component}.nodeSelector.${set.value.key}"
+      name  = "${set.value.component}.nodeSelector.${replace(set.value.key, ".", "\\.")}"
       value = set.value.value
     }
   }
