@@ -12,7 +12,7 @@ variable "external_dns" {
   default = null
 }
 
-variable "nginx_controller" {
+variable "ingress_nginx" {
   type = object({
     namespace = optional(string, "kube-system")
     version   = optional(string, "4.7.0")
