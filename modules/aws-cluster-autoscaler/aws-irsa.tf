@@ -14,7 +14,7 @@ resource "aws_iam_role" "cluster_autoscaler" {
   description        = "AWS IAM Role for the Kubernetes service account ${var.k8s_namespace}:${var.k8s_service_account_name}"
 
   force_detach_policies = true
-  tags                  = var.tags
+  tags                  = local.tags
 }
 
 # Assume role policy for IRSA
@@ -101,6 +101,7 @@ resource "aws_iam_policy" "cluster_autoscaler" {
   path        = "/"
   description = "AWS IAM Policy for the Kubernetes service account ${var.k8s_namespace}:${var.k8s_service_account_name}"
   policy      = data.aws_iam_policy_document.cluster_autoscaler.json
+  tags        = local.tags
 }
 
 resource "aws_iam_role_policy_attachment" "cluster_autoscaler" {

@@ -72,6 +72,9 @@ module "ebs_csi_irsa_role" {
       namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
     }
   }
+  tags = merge(var.tags, {
+    "vessl:component" = "addon/ebs-csi-driver"
+  })
 }
 
 resource "aws_eks_addon" "ebs_csi_driver" {

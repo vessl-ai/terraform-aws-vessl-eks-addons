@@ -38,6 +38,10 @@ module "aws_external_dns" {
   k8s_create_namespace    = false
   k8s_namespace           = var.external_dns.namespace
   helm_chart_version      = var.external_dns.version
-  helm_values             = { for i, source in var.external_dns.sources : "sources[${i}]" => source }
-  tolerations             = var.tolerations
+  helm_values = merge(
+    { for i, source in var.external_dns.sources : "sources[${i}]" => source },
+    { "txtOwnerId" : "vessl" },
+  )
+  tolerations = var.tolerations
+  tags        = var.tags
 }

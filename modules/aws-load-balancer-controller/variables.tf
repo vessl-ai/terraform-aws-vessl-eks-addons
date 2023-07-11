@@ -15,3 +15,9 @@ variable "tolerations" {
   }))
   default = []
 }
+
+variable "tags" {
+  default = {
+    "vessl:managed" : "true",
+  }
+}
