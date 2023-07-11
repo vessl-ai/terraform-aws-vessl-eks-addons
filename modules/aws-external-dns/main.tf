@@ -1,5 +1,8 @@
 locals {
   tolerations = { for i, v in var.tolerations : i => v }
+  tags = merge(var.tags, {
+    "vessl:component" = "external-dns",
+  })
 }
 
 resource "helm_release" "external_dns" {

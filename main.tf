@@ -8,6 +8,7 @@ module "aws_load_balancer_controller" {
   k8s_namespace      = var.load_balancer_controller.namespace
   helm_chart_version = var.load_balancer_controller.version
   tolerations        = var.tolerations
+  tags               = var.tags
 }
 
 module "aws_cluster_autoscaler" {
@@ -20,4 +21,5 @@ module "aws_cluster_autoscaler" {
   k8s_namespace       = var.cluster_autoscaler.namespace
   helm_chart_version  = var.cluster_autoscaler.version
   tolerations         = var.tolerations
+  tags                = var.tags
 }

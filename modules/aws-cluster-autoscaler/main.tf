@@ -2,6 +2,9 @@ data "aws_region" "current" {}
 
 locals {
   tolerations = { for i, v in var.tolerations : i => v }
+  tags = merge(var.tags, {
+    "vessl:component" = "cluster-autoscaler"
+  })
 }
 
 resource "helm_release" "cluster_autoscaler" {

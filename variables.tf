@@ -82,7 +82,7 @@ variable "vpc_cni" {
 
 variable "ebs_csi_driver" {
   type = object({
-    version            = optional(string, "v1.19.0-eksbuild.2")
+    version            = optional(string, "v1.20.0-eksbuild.1")
     storage_class_name = optional(string, "vessl-ebs")
   })
   default = null
@@ -111,4 +111,11 @@ variable "tolerations" {
     operator = "Exists"
     effect   = "NoSchedule"
   }]
+}
+
+variable "tags" {
+  type = map(string)
+  default = {
+    "vessl:managed" : "true",
+  }
 }
