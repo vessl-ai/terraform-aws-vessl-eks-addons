@@ -13,7 +13,7 @@ resource "aws_iam_role" "external_dns" {
   name               = "${var.eks_cluster_name}-${var.helm_release_name}-irsa"
   assume_role_policy = data.aws_iam_policy_document.external_dns_irsa.json
   description        = "AWS IAM Role for the Kubernetes service account ${var.k8s_namespace}:${var.k8s_service_account_name}"
-  tags               = var.tags
+  tags               = local.tags
 }
 
 # Assume role policy for IRSA
@@ -67,6 +67,7 @@ resource "aws_iam_policy" "external_dns" {
   path        = "/"
   description = "AWS IAM Policy for the Kubernetes service account ${var.k8s_namespace}:${var.k8s_service_account_name}"
   policy      = data.aws_iam_policy_document.external_dns.json
+  tags        = local.tags
 }
 
 resource "aws_iam_role_policy_attachment" "external_dns" {
