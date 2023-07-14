@@ -22,7 +22,7 @@ locals {
       }
     ]
   ]))
-  service_target_ports = var.ingress_nginx.ssl_termination ? {
+  service_target_ports = try(var.ingress_nginx.ssl_termination, false) ? {
     http  = "http",
     https = "http",
   } : {}

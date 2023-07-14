@@ -15,6 +15,8 @@ locals {
 }
 
 resource "kubernetes_namespace_v1" "nvidia_gpu_operator" {
+  count = var.nvidia_gpu_operator != null ? 1 : 0
+
   metadata {
     name = var.nvidia_gpu_operator.namespace
   }
