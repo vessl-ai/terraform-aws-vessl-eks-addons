@@ -12,6 +12,48 @@ locals {
     }
   ]
   gpu_operator_tolerations = { for i, v in concat(var.tolerations, local.gpu_operator_default_tolerations) : i => v }
+
+  gpu_operator_default_node_affinity = {
+    preferredDuringSchedulingIgnoredDuringExecution = [
+      {
+        weight = 1
+        preference = {
+          matchExpressions = {
+            key      = "node-role.kubernetes.io/master"
+            operator = "In"
+            values   = [""]
+          }
+        }
+      },
+      {
+        weight = 1
+        preference = {
+          matchExpressions = {
+            key      = "node-role.kubernetes.io/control-plane"
+            operator = "In"
+            values   = [""]
+          }
+        }
+      }
+    ]
+  }
+  gpu_operator_node_affinity = {
+    preferredDuringSchedulingIgnoredDuringExecution = concat(
+      [for _, v in var.node_selectors : {
+        weight = 1
+        preference = {
+          matchExpressions = [
+            for labelKey, labelValue in v : {
+              key      = labelKey
+              operator = "In"
+              values   = [labelValue]
+            }
+          ]
+        }
+      }],
+      local.gpu_operator_default_node_affinity.preferredDuringSchedulingIgnoredDuringExecution,
+    )
+  }
 }
 
 resource "kubernetes_namespace_v1" "nvidia_gpu_operator" {
@@ -26,6 +68,7 @@ resource "kubernetes_namespace_v1" "nvidia_gpu_operator" {
 }
 
 resource "helm_release" "nvidia_gpu_operator" {
+  // https://github.com/NVIDIA/gpu-operator/blob/2f0a16684157a9171939702a8b5322363c6d93e9/deployments/gpu-operator/values.yaml
   count = var.nvidia_gpu_operator != null ? 1 : 0
 
   repository = "https://nvidia.github.io/gpu-operator"
@@ -66,52 +109,24 @@ resource "helm_release" "nvidia_gpu_operator" {
     value = "false"
   }
 
-  dynamic "set" {
-    for_each = local.gpu_operator_tolerations
-    content {
-      name  = "operator.tolerations[${set.key}].key"
-      value = set.value.key
-    }
+  set_list {
+    name  = "operator.tolerations"
+    value = local.gpu_operator_tolerations
   }
 
-  dynamic "set" {
-    for_each = local.gpu_operator_tolerations
-    content {
-      name  = "operator.tolerations[${set.key}].operator"
-      value = set.value.operator
-    }
+  set_list {
+    name  = "operator.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution"
+    value = local.gpu_operator_node_affinity.preferredDuringSchedulingIgnoredDuringExecution
   }
 
-  dynamic "set" {
-    for_each = local.gpu_operator_tolerations
-    content {
-      name  = "operator.tolerations[${set.key}].effect"
-      value = set.value.effect
-    }
+  set_list {
+    name  = "node-feature-discovery.master.tolerations"
+    value = local.gpu_operator_tolerations
   }
 
-  dynamic "set" {
-    for_each = local.gpu_operator_tolerations
-    content {
-      name  = "node-feature-discovery.master.tolerations[${set.key}].key"
-      value = set.value.key
-    }
-  }
-
-  dynamic "set" {
-    for_each = local.gpu_operator_tolerations
-    content {
-      name  = "node-feature-discovery.master.tolerations[${set.key}].operator"
-      value = set.value.operator
-    }
-  }
-
-  dynamic "set" {
-    for_each = local.gpu_operator_tolerations
-    content {
-      name  = "node-feature-discovery.master.tolerations[${set.key}].effect"
-      value = set.value.effect
-    }
+  set_list {
+    name  = "node-feature-discovery.master.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution"
+    value = local.gpu_operator_node_affinity.preferredDuringSchedulingIgnoredDuringExecution
   }
 
   depends_on = [
