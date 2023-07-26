@@ -73,3 +73,14 @@ variable "tolerations" {
   }))
   default = []
 }
+
+variable "node_selectors" {
+  type = list(object({
+    key   = string
+    value = string
+  }))
+  default = [{
+    key   = "v1.k8s.vessl.ai/dedicated"
+    value = "manager"
+  }]
+}

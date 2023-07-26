@@ -9,6 +9,7 @@ variable "external_dns" {
     namespace      = optional(string, "kube-system")
     version        = optional(string, "1.13.0")
     sources        = optional(list(string), ["service"])
+    helm_values    = optional(map(any), {})
   })
   default = null
 }

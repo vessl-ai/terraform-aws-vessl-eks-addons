@@ -1,8 +1,37 @@
 locals {
-  tolerations = { for i, v in var.tolerations : i => v }
   tags = merge(var.tags, {
     "vessl:component" = "addon/external-dns",
   })
+
+  external_dns_node_affinity = {
+    preferredDuringSchedulingIgnoredDuringExecution = [
+      for nodeSelector in var.node_selectors : {
+        weight = 1
+        preference = {
+          matchExpressions = [{
+            key      = nodeSelector.key
+            operator = "In"
+            values   = [nodeSelector.value]
+          }]
+        }
+      }
+    ]
+  }
+
+  // https://github.com/kubernetes-sigs/external-dns/blob/bc61d4deb357c9283fda5b199c0ab52283a91b88/charts/external-dns/values.yaml
+  external_dns_helm_values = {
+    serviceAccount = {
+      annotations = {
+        "eks.amazonaws.com/role-arn" = aws_iam_role.external_dns.arn
+      }
+      create = true
+      name   = var.k8s_service_account_name
+    }
+    affinity = {
+      nodeAffinity = local.external_dns_node_affinity
+    }
+    tolerations = var.tolerations
+  }
 }
 
 resource "helm_release" "external_dns" {
@@ -12,45 +41,7 @@ resource "helm_release" "external_dns" {
   namespace = var.k8s_namespace
   name      = var.helm_release_name
   version   = var.helm_chart_version
-
-  set {
-    name  = "serviceAccount.create"
-    value = "true"
-  }
-
-  set {
-    name  = "serviceAccount.name"
-    value = var.k8s_service_account_name
-  }
-
-  set {
-    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = aws_iam_role.external_dns.arn
-  }
-
-  dynamic "set" {
-    for_each = local.tolerations
-    content {
-      name  = "tolerations[${set.key}].key"
-      value = set.value.key
-    }
-  }
-
-  dynamic "set" {
-    for_each = local.tolerations
-    content {
-      name  = "tolerations[${set.key}].operator"
-      value = set.value.operator
-    }
-  }
-
-  dynamic "set" {
-    for_each = local.tolerations
-    content {
-      name  = "tolerations[${set.key}].effect"
-      value = set.value.effect
-    }
-  }
+  values    = [yamlencode(local.external_dns_helm_values)]
 
   dynamic "set" {
     for_each = var.helm_values
