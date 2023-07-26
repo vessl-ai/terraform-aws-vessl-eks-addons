@@ -1,10 +1,41 @@
 data "aws_region" "current" {}
 
 locals {
-  tolerations = { for i, v in var.tolerations : i => v }
   tags = merge(var.tags, {
     "vessl:component" = "addon/cluster-autoscaler"
   })
+
+  node_affinity = {
+    preferredDuringSchedulingIgnoredDuringExecution = [
+      for nodeSelector in var.node_selectors : {
+        weight = 1
+        preference = {
+          matchExpressions = [{
+            key      = nodeSelector.key
+            operator = "In"
+            values   = [nodeSelector.value]
+          }]
+        }
+      }
+    ]
+  }
+
+  // https://github.com/kubernetes/autoscaler/blob/63eab4efdfe98f07ed59fa29839119290f0f5157/charts/cluster-autoscaler/values.yaml
+  helm_values = {
+    rbac = {
+      serviceAccount = {
+        annotations = {
+          "eks.amazonaws.com/role-arn" = aws_iam_role.cluster_autoscaler.arn
+        }
+      }
+      create = true
+      name   = var.k8s_service_account_name
+    }
+    tolerations = var.tolerations
+    affinity = {
+      nodeAffinity = local.node_affinity
+    }
+  }
 }
 
 resource "helm_release" "cluster_autoscaler" {
@@ -15,50 +46,14 @@ resource "helm_release" "cluster_autoscaler" {
   name      = var.helm_release_name
   version   = var.helm_chart_version
 
-  values = [templatefile("${path.module}/values.yaml", {
-    aws_region       = data.aws_region.current.name
-    eks_cluster_name = var.eks_cluster_name
-    image_tag        = "v${var.eks_cluster_version}.0"
-  })]
-
-  set {
-    name  = "rbac.serviceAccount.create"
-    value = "true"
-  }
-
-  set {
-    name  = "rbac.serviceAccount.name"
-    value = var.k8s_service_account_name
-  }
-
-  set {
-    name  = "rbac.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = aws_iam_role.cluster_autoscaler.arn
-  }
-
-  dynamic "set" {
-    for_each = local.tolerations
-    content {
-      name  = "tolerations[${set.key}].key"
-      value = set.value.key
-    }
-  }
-
-  dynamic "set" {
-    for_each = local.tolerations
-    content {
-      name  = "tolerations[${set.key}].operator"
-      value = set.value.operator
-    }
-  }
-
-  dynamic "set" {
-    for_each = local.tolerations
-    content {
-      name  = "tolerations[${set.key}].effect"
-      value = set.value.effect
-    }
-  }
+  values = [
+    templatefile("${path.module}/values.yaml", {
+      aws_region       = data.aws_region.current.name
+      eks_cluster_name = var.eks_cluster_name
+      image_tag        = "v${var.eks_cluster_version}.0"
+    }),
+    yamlencode(local.helm_values),
+  ]
 
   dynamic "set" {
     for_each = var.helm_values
