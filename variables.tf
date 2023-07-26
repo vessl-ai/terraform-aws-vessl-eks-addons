@@ -76,14 +76,14 @@ variable "kube_proxy" {
 
 variable "vpc_cni" {
   type = object({
-    version = optional(string, "v1.13.2-eksbuild.1")
+    version = optional(string, "v1.13.3-eksbuild.1")
   })
   default = null
 }
 
 variable "ebs_csi_driver" {
   type = object({
-    version            = optional(string, "v1.20.0-eksbuild.1")
+    version            = optional(string, "v1.21.0-eksbuild.1")
     storage_class_name = optional(string, "vessl-ebs")
   })
   default = null
