@@ -1,8 +1,44 @@
 locals {
-  tolerations = { for i, v in var.tolerations : i => v }
   tags = merge(var.tags, {
     "vessl:component" = "addon/load-balancer-controller",
   })
+
+  node_affinity = {
+    preferredDuringSchedulingIgnoredDuringExecution = [
+      for nodeSelector in var.node_selectors : {
+        weight = 1
+        preference = {
+          matchExpressions = [{
+            key      = nodeSelector.key
+            operator = "In"
+            values   = [nodeSelector.value]
+          }]
+        }
+      }
+    ]
+  }
+
+  // https://github.com/kubernetes-sigs/aws-load-balancer-controller/blob/d177c898ddd86071eecc2fd918d72ebfb0af7892/helm/aws-load-balancer-controller/values.yaml
+  helm_values = {
+    clusterName = var.eks_cluster_name
+    rbac = {
+      create = true,
+    }
+    serviceAccount = {
+      create = true,
+      name   = "load-balancer-controller"
+      annotations = {
+        "eks.amazonaws.com/role-arn" = aws_iam_role.load_balancer_controller.arn
+      }
+    }
+    tolerations = var.tolerations
+    affinity = {
+      nodeAffinity = local.node_affinity
+    }
+    defaultTags = {
+      for key, value in local.tags : key => value
+    }
+  }
 }
 
 # Source: https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-controller/main/docs/install/iam_policy.json
@@ -52,52 +88,5 @@ resource "helm_release" "load_balancer_controller" {
   chart      = "aws-load-balancer-controller"
   namespace  = var.k8s_namespace
   version    = var.helm_chart_version
-
-  dynamic "set" {
-    for_each = local.tags
-    content {
-      name  = "defaultTags.${set.key}"
-      value = replace(set.value, ",", "\\,")
-    }
-  }
-
-  dynamic "set" {
-    for_each = local.tolerations
-    content {
-      name  = "tolerations[${set.key}].key"
-      value = set.value.key
-    }
-  }
-
-  dynamic "set" {
-    for_each = local.tolerations
-    content {
-      name  = "tolerations[${set.key}].operator"
-      value = set.value.operator
-    }
-  }
-
-  dynamic "set" {
-    for_each = local.tolerations
-    content {
-      name  = "tolerations[${set.key}].effect"
-      value = set.value.effect
-    }
-  }
-
-  values = [yamlencode(
-    {
-      clusterName = var.eks_cluster_name
-      rbac = {
-        create = true,
-      }
-      serviceAccount = {
-        create = true,
-        name   = "load-balancer-controller"
-        annotations = {
-          "eks.amazonaws.com/role-arn" = aws_iam_role.load_balancer_controller.arn
-        }
-      }
-    }
-  )]
+  values     = [yamlencode(local.helm_values)]
 }
