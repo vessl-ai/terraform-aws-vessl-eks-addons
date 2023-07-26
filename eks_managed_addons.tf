@@ -22,6 +22,7 @@ resource "aws_eks_addon" "coredns" {
   addon_version               = var.coredns.version
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
+
   configuration_values = jsonencode({
     tolerations = [
       for i, v in local.eks_addon_tolerations : {
@@ -30,6 +31,22 @@ resource "aws_eks_addon" "coredns" {
         effect   = v.effect
       }
     ]
+    affinity = {
+      nodeAffinity = {
+        preferredDuringSchedulingIgnoredDuringExecution = [
+          for nodeSelector in var.node_selectors : {
+            weight = 1
+            preference = {
+              matchExpressions = [{
+                key      = nodeSelector.key
+                operator = "In"
+                values   = [nodeSelector.value]
+              }]
+            }
+          }
+        ]
+      }
+    }
   })
 }
 
@@ -87,6 +104,7 @@ resource "aws_eks_addon" "ebs_csi_driver" {
 
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
+
   configuration_values = jsonencode({
     controller = {
       tolerations = [
@@ -96,6 +114,35 @@ resource "aws_eks_addon" "ebs_csi_driver" {
           effect   = v.effect
         }
       ]
+      affinity = {
+        nodeAffinity = {
+          requiredDuringSchedulingIgnoredDuringExecution = {
+            nodeSelectorTerms = [
+              {
+                matchExpressions = [
+                  {
+                    key      = "eks.amazonaws.com/compute-type"
+                    operator = "NotIn"
+                    values   = ["fargate"]
+                  }
+                ]
+              }
+            ]
+          }
+          preferredDuringSchedulingIgnoredDuringExecution = [
+            for nodeSelector in var.node_selectors : {
+              weight = 1
+              preference = {
+                matchExpressions = [{
+                  key      = nodeSelector.key
+                  operator = "In"
+                  values   = [nodeSelector.value]
+                }]
+              }
+            }
+          ]
+        }
+      }
     }
     node = {
       tolerations = [
