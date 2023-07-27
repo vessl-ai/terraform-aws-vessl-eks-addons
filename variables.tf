@@ -110,6 +110,16 @@ variable "node_exporter" {
   default = null
 }
 
+variable "kube_state_metrics" {
+  type = object({
+    namespace = optional(string, "kube-system")
+    version   = optional(string, "5.10.1")
+    // https://github.com/prometheus-community/helm-charts/blob/eae39d7447cfaeaf9aa00b8aec942ebce879861b/charts/kube-state-metrics/values.yaml
+    helm_values = optional(map(any), {})
+  })
+  default = null
+}
+
 variable "node_selectors" {
   type = list(object({
     key   = string
