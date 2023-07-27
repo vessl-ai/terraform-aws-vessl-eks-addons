@@ -120,6 +120,16 @@ variable "kube_state_metrics" {
   default = null
 }
 
+variable "metrics_server" {
+  type = object({
+    namespace = optional(string, "kube-system")
+    version   = optional(string, "3.10.0")
+    // https://github.com/kubernetes-sigs/metrics-server/blob/796fc0f832c1ac444c44f88a952be87524456e07/charts/metrics-server/values.yaml
+    helm_values = optional(map(any), {})
+  })
+  default = null
+}
+
 variable "node_selectors" {
   type = list(object({
     key   = string
