@@ -9,7 +9,8 @@ variable "external_dns" {
     namespace      = optional(string, "kube-system")
     version        = optional(string, "1.13.0")
     sources        = optional(list(string), ["service"])
-    helm_values    = optional(map(any), {})
+    // https://github.com/kubernetes-sigs/external-dns/blob/bc61d4deb357c9283fda5b199c0ab52283a91b88/charts/external-dns/values.yaml
+    helm_values = optional(map(any), {})
   })
   default = null
 }
@@ -85,6 +86,16 @@ variable "ebs_csi_driver" {
   type = object({
     version            = optional(string, "v1.21.0-eksbuild.1")
     storage_class_name = optional(string, "vessl-ebs")
+  })
+  default = null
+}
+
+variable "dcgm_exporter" {
+  type = object({
+    namespace = optional(string, "kube-system")
+    version   = optional(string, "3.1.5")
+    // https://github.com/NVIDIA/dcgm-exporter/blob/e55ec750def325f9f1fdbd0a6f98c932672002e4/deployment/values.yaml
+    helm_values = optional(map(any), {})
   })
   default = null
 }
