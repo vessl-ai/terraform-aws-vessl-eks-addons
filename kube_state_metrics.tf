@@ -1,5 +1,5 @@
 locals {
-  node_affinity = {
+  kube_state_metrics_node_affinity = {
     preferredDuringSchedulingIgnoredDuringExecution = [
       for nodeSelector in var.node_selectors : {
         weight = 1
@@ -15,10 +15,10 @@ locals {
   }
 
   // https://github.com/prometheus-community/helm-charts/blob/eae39d7447cfaeaf9aa00b8aec942ebce879861b/charts/kube-state-metrics/values.yaml
-  helm_values = {
+  kube_state_metrics_helm_values = {
     tolerations = var.tolerations
     affinity = {
-      nodeAffinity = local.node_affinity
+      nodeAffinity = local.kube_state_metrics_node_affinity
     }
   }
 }
@@ -31,7 +31,7 @@ resource "helm_release" "kube_state_metrics" {
   name       = "kube-state-metrics"
   version    = var.kube_state_metrics.version
   namespace  = var.kube_state_metrics.namespace
-  values     = [yamlencode(local.helm_values)]
+  values     = [yamlencode(local.kube_state_metrics_helm_values)]
 
   dynamic "set" {
     for_each = var.kube_state_metrics.helm_values
