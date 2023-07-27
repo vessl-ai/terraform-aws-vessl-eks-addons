@@ -100,6 +100,16 @@ variable "dcgm_exporter" {
   default = null
 }
 
+variable "node_exporter" {
+  type = object({
+    namespace = optional(string, "kube-system")
+    version   = optional(string, "4.21.0")
+    // https://github.com/prometheus-community/helm-charts/blob/eae39d7447cfaeaf9aa00b8aec942ebce879861b/charts/prometheus-node-exporter/values.yaml
+    helm_values = optional(map(any), {})
+  })
+  default = null
+}
+
 variable "node_selectors" {
   type = list(object({
     key   = string
