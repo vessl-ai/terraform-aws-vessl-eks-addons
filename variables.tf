@@ -130,6 +130,17 @@ variable "metrics_server" {
   default = null
 }
 
+variable "prometheus" {
+  type = object({
+    namespace = optional(string, "prometheus")
+    operator_crds = object({
+      enable  = optional(bool, true)
+      version = optional(string, "5.0.0")
+    })
+  })
+  default = null
+}
+
 variable "node_selectors" {
   type = list(object({
     key   = string
