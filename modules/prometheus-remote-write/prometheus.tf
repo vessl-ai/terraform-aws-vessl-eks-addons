@@ -21,6 +21,45 @@ locals {
       affinity = {
         nodeAffinity = local.prometheus_server_node_affinity
       }
+      remoteWrite = [
+        {
+          name = "vessl-remote-write"
+          url  = var.server.url
+          authorization = {
+            type = "Token"
+            credentials = {
+              name = "vessl-agent"
+              key  = "access-token"
+            }
+          }
+          writeRelabelConfigs = [
+            {
+              action = "labeldrop"
+              regex  = "feature_node_kubernetes_io_(.+)"
+            },
+            {
+              action = "labeldrop"
+              regex  = "label_feature_node_kubernetes_io_(.+)"
+            },
+            {
+              action = "labeldrop"
+              regex  = "minikube_(.+)"
+            },
+          ]
+        }
+      ]
+    }
+    alertmanager = {
+      enabled = false
+    }
+    kube-state-metrics = {
+      enabled = false
+    }
+    prometheus-node-exporter = {
+      enabled = false
+    }
+    prometheus-push-gateway = {
+      enabled = false
     }
   }
 }
@@ -34,5 +73,5 @@ resource "helm_release" "prometheus_server" {
   name             = "prometheus"
   version          = var.server.version
   namespace        = var.namespace
-  values           = [yamlencode(local.prometheus_adapter_helm_values)]
+  values           = [yamlencode(local.prometheus_server_helm_values)]
 }

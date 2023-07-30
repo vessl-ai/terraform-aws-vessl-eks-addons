@@ -1,23 +1,24 @@
-module "prometheus" {
-  count  = var.prometheus != null ? 1 : 0
-  source = "./modules/prometheus"
+module "prometheus_remote_write" {
+  count  = var.prometheus_remote_write != null ? 1 : 0
+  source = "./modules/prometheus-remote-write"
 
   namespace = "prometheus"
   server = {
-    enabled = var.prometheus.server.enabled
-    version = var.prometheus.server.version
+    enabled = var.prometheus_remote_write.server.enabled
+    version = var.prometheus_remote_write.server.version
+    url     = var.prometheus_remote_write.server.url
   }
   operator_crds = {
-    enabled = var.prometheus.operator_crds.enabled
-    version = var.prometheus.operator_crds.version
+    enabled = var.prometheus_remote_write.operator_crds.enabled
+    version = var.prometheus_remote_write.operator_crds.version
   }
   operator_admission_webhook = {
-    enabled = var.prometheus.operator_admission_webhook.enabled
-    version = var.prometheus.operator_admission_webhook.version
+    enabled = var.prometheus_remote_write.operator_admission_webhook.enabled
+    version = var.prometheus_remote_write.operator_admission_webhook.version
   }
   adapter = {
-    enabled = var.prometheus.adapter.enabled
-    version = var.prometheus.adapter.version
+    enabled = var.prometheus_remote_write.adapter.enabled
+    version = var.prometheus_remote_write.adapter.version
   }
 
   tolerations    = var.tolerations

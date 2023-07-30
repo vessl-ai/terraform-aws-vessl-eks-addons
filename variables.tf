@@ -130,12 +130,13 @@ variable "metrics_server" {
   default = null
 }
 
-variable "prometheus" {
+variable "prometheus_remote_write" {
   type = object({
-    namespace = optional(string, "prometheus")
+    namespace = optional(string, "prometheus-remote-write")
     server = object({
       enabled = optional(bool, true)
       version = optional(string, "23.1.0")
+      url     = optional(string, "https://remote-write-gateway.vessl.ai/remote-write")
     })
     operator_crds = object({
       enabled = optional(bool, true)
@@ -152,7 +153,8 @@ variable "prometheus" {
       rules = optional(map(any), null)
     })
   })
-  default = null
+  default     = null
+  description = "Prometheus to remote-write metrics to VESSL server. This is required to show system metrics in VESSL dashboard."
 }
 
 variable "node_selectors" {
