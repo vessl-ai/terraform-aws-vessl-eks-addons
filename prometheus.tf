@@ -3,6 +3,10 @@ module "prometheus" {
   source = "./modules/prometheus"
 
   namespace = "prometheus"
+  server = {
+    enabled = var.prometheus.server.enabled
+    version = var.prometheus.server.version
+  }
   operator_crds = {
     enabled = var.prometheus.operator_crds.enabled
     version = var.prometheus.operator_crds.version
