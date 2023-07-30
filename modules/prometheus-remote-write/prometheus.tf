@@ -58,7 +58,7 @@ locals {
     prometheus-node-exporter = {
       enabled = false
     }
-    prometheus-push-gateway = {
+    prometheus-pushgateway = {
       enabled = false
     }
   }

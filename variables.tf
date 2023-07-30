@@ -144,7 +144,7 @@ variable "prometheus_remote_write" {
     })
     operator_admission_webhook = object({
       enabled = optional(bool, true)
-      version = optional(string, "0.4.0")
+      version = optional(string, "0.5.0")
     })
     adapter = object({
       enabled = optional(bool, true)

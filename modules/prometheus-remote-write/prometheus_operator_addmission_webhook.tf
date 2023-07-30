@@ -14,14 +14,14 @@ locals {
     ]
   }
 
-  // https://github.com/prometheus-community/helm-charts/blob/7e407a73f02272f3d608f5f8dbe72395f7ace57b/charts/prometheus-operator-admission-webhook/values.yaml
+  // https://github.com/prometheus-community/helm-charts/blob/cb4aa6648ba6f3e72d1f7bcb16fa8a8cbba4ec48/charts/prometheus-operator-admission-webhook/values.yaml
   operator_admission_webhook_helm_values = {
     tolerations = var.tolerations
     affinity = {
       nodeAffinity = local.operator_admission_webhook_node_affinity
     }
     jobs = {
-      tolerations = {} // TODO: fix the type of this field to array (chart bug, PR created)
+      tolerations = var.tolerations
       affinity = {
         nodeAffinity = local.operator_admission_webhook_node_affinity
       }
