@@ -1,5 +1,5 @@
 variable "namespace" {
-  default = "prometheus"
+  default = "prometheus-remote-write"
 }
 
 variable "server" {

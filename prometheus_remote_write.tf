@@ -2,7 +2,7 @@ module "prometheus_remote_write" {
   count  = var.prometheus_remote_write != null ? 1 : 0
   source = "./modules/prometheus-remote-write"
 
-  namespace = "prometheus"
+  namespace = var.prometheus_remote_write.namespace
   server = {
     enabled = var.prometheus_remote_write.server.enabled
     version = var.prometheus_remote_write.server.version
