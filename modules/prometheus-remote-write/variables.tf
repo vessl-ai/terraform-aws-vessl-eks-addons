@@ -6,6 +6,7 @@ variable "server" {
   type = object({
     enabled = bool
     version = string
+    url     = string
   })
 }
 
