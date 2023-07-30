@@ -13,6 +13,17 @@ variable "operator_crds" {
   }
 }
 
+variable "operator_admission_webhook" {
+  type = object({
+    enabled = bool
+    version = string
+  })
+  default = {
+    enabled = true
+    version = "0.4.0"
+  }
+}
+
 variable "tags" {
   type        = map(string)
   description = "Additional tags to put on AWS resources (e.g. IAM role, owner, etc.)"
