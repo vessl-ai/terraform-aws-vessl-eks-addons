@@ -15,12 +15,17 @@ locals {
   }
 
   // https://github.com/prometheus-community/helm-charts/blob/7e407a73f02272f3d608f5f8dbe72395f7ace57b/charts/prometheus-adapter/values.yaml
-  prometheus_adapter_helm_values = {
-    tolerations = var.tolerations
-    affinity = {
-      nodeAffinity = local.prometheus_adapter_node_affinity
-    }
-  }
+  prometheus_adapter_helm_values = merge(
+    {
+      tolerations = var.tolerations
+      affinity = {
+        nodeAffinity = local.prometheus_adapter_node_affinity
+      }
+    },
+    var.adapter.rules != null ? {
+      rules = var.adapter.rules
+    } : {}
+  )
 }
 
 resource "helm_release" "prometheus_adapter" {

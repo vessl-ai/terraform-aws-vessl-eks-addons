@@ -7,10 +7,6 @@ variable "operator_crds" {
     enabled = bool
     version = string
   })
-  default = {
-    enabled = true
-    version = "5.0.0"
-  }
 }
 
 variable "operator_admission_webhook" {
@@ -18,29 +14,18 @@ variable "operator_admission_webhook" {
     enabled = bool
     version = string
   })
-  default = {
-    enabled = true
-    version = "0.4.0"
-  }
 }
 
 variable "adapter" {
   type = object({
     enabled = bool
     version = string
+    rules   = map(any)
   })
-  default = {
-    enabled = true
-    version = "4.3.0"
-  }
 }
 
 variable "tags" {
-  type        = map(string)
-  description = "Additional tags to put on AWS resources (e.g. IAM role, owner, etc.)"
-  default = {
-    "terraform" = "true"
-  }
+  type = map(string)
 }
 
 variable "tolerations" {

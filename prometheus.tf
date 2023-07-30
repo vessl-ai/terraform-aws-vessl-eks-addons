@@ -4,8 +4,16 @@ module "prometheus" {
 
   namespace = "prometheus"
   operator_crds = {
-    enabled = true
-    version = "5.0.0"
+    enabled = var.prometheus.operator_crds.enabled
+    version = var.prometheus.operator_crds.version
+  }
+  operator_admission_webhook = {
+    enabled = var.prometheus.operator_admission_webhooks.enabled
+    version = var.prometheus.operator_admission_webhooks.version
+  }
+  adapter = {
+    enabled = var.prometheus.adapter.enabled
+    version = var.prometheus.adapter.version
   }
 
   tolerations    = var.tolerations

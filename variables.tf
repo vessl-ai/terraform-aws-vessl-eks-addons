@@ -134,8 +134,18 @@ variable "prometheus" {
   type = object({
     namespace = optional(string, "prometheus")
     operator_crds = object({
-      enable  = optional(bool, true)
+      enabled = optional(bool, true)
       version = optional(string, "5.0.0")
+    })
+    operator_admission_webhooks = object({
+      enabled = optional(bool, true)
+      version = optional(string, "0.4.0")
+    })
+    adapter = object({
+      enabled = optional(bool, true)
+      version = optional(string, "4.3.0")
+      // https://github.com/prometheus-community/helm-charts/blob/7e407a73f02272f3d608f5f8dbe72395f7ace57b/charts/prometheus-adapter/values.yaml#L115
+      rules = optional(map(any), null)
     })
   })
   default = null
