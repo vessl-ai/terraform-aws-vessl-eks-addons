@@ -32,7 +32,7 @@ locals {
               key  = "access-token"
             }
           }
-          writeRelabelConfigs = [
+          write_relabel_configs = [
             {
               action = "labeldrop"
               regex  = "feature_node_kubernetes_io_(.+)"
