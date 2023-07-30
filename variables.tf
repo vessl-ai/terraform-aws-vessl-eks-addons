@@ -133,11 +133,15 @@ variable "metrics_server" {
 variable "prometheus" {
   type = object({
     namespace = optional(string, "prometheus")
+    server = object({
+      enabled = optional(bool, true)
+      version = optional(string, "23.1.0")
+    })
     operator_crds = object({
       enabled = optional(bool, true)
       version = optional(string, "5.0.0")
     })
-    operator_admission_webhooks = object({
+    operator_admission_webhook = object({
       enabled = optional(bool, true)
       version = optional(string, "0.4.0")
     })

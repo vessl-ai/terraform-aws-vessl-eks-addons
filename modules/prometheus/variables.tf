@@ -2,6 +2,13 @@ variable "namespace" {
   default = "prometheus"
 }
 
+variable "server" {
+  type = object({
+    enabled = bool
+    version = string
+  })
+}
+
 variable "operator_crds" {
   type = object({
     enabled = bool
@@ -20,7 +27,7 @@ variable "adapter" {
   type = object({
     enabled = bool
     version = string
-    rules   = map(any)
+    rules   = optional(map(any), null)
   })
 }
 

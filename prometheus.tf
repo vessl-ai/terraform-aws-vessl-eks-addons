@@ -3,13 +3,17 @@ module "prometheus" {
   source = "./modules/prometheus"
 
   namespace = "prometheus"
+  server = {
+    enabled = var.prometheus.server.enabled
+    version = var.prometheus.server.version
+  }
   operator_crds = {
     enabled = var.prometheus.operator_crds.enabled
     version = var.prometheus.operator_crds.version
   }
   operator_admission_webhook = {
-    enabled = var.prometheus.operator_admission_webhooks.enabled
-    version = var.prometheus.operator_admission_webhooks.version
+    enabled = var.prometheus.operator_admission_webhook.enabled
+    version = var.prometheus.operator_admission_webhook.version
   }
   adapter = {
     enabled = var.prometheus.adapter.enabled
