@@ -53,14 +53,6 @@ variable "cluster_autoscaler" {
   default = null
 }
 
-variable "nvidia_gpu_operator" {
-  type = object({
-    namespace = optional(string, "gpu-operator")
-    version   = optional(string, "23.3.2")
-  })
-  default = null
-}
-
 variable "coredns" {
   type = object({
     version = optional(string, "v1.9.3-eksbuild.5")
@@ -90,36 +82,6 @@ variable "ebs_csi_driver" {
   default = null
 }
 
-variable "dcgm_exporter" {
-  type = object({
-    namespace = optional(string, "kube-system")
-    version   = optional(string, "3.1.5")
-    // https://github.com/NVIDIA/dcgm-exporter/blob/e55ec750def325f9f1fdbd0a6f98c932672002e4/deployment/values.yaml
-    helm_values = optional(map(any), {})
-  })
-  default = null
-}
-
-variable "node_exporter" {
-  type = object({
-    namespace = optional(string, "kube-system")
-    version   = optional(string, "4.21.0")
-    // https://github.com/prometheus-community/helm-charts/blob/eae39d7447cfaeaf9aa00b8aec942ebce879861b/charts/prometheus-node-exporter/values.yaml
-    helm_values = optional(map(any), {})
-  })
-  default = null
-}
-
-variable "kube_state_metrics" {
-  type = object({
-    namespace = optional(string, "kube-system")
-    version   = optional(string, "5.10.1")
-    // https://github.com/prometheus-community/helm-charts/blob/eae39d7447cfaeaf9aa00b8aec942ebce879861b/charts/kube-state-metrics/values.yaml
-    helm_values = optional(map(any), {})
-  })
-  default = null
-}
-
 variable "metrics_server" {
   type = object({
     namespace = optional(string, "kube-system")
@@ -128,33 +90,6 @@ variable "metrics_server" {
     helm_values = optional(map(any), {})
   })
   default = null
-}
-
-variable "prometheus_remote_write" {
-  type = object({
-    namespace = optional(string, "prometheus-remote-write")
-    server = object({
-      enabled = optional(bool, true)
-      version = optional(string, "23.1.0")
-      url     = optional(string, "https://remote-write-gateway.vessl.ai/remote-write")
-    })
-    operator_crds = object({
-      enabled = optional(bool, true)
-      version = optional(string, "5.0.0")
-    })
-    operator_admission_webhook = object({
-      enabled = optional(bool, true)
-      version = optional(string, "0.5.0")
-    })
-    adapter = object({
-      enabled = optional(bool, true)
-      version = optional(string, "4.3.0")
-      // https://github.com/prometheus-community/helm-charts/blob/7e407a73f02272f3d608f5f8dbe72395f7ace57b/charts/prometheus-adapter/values.yaml#L115
-      rules = optional(map(any), null)
-    })
-  })
-  default     = null
-  description = "Prometheus to remote-write metrics to VESSL server. This is required to show system metrics in VESSL dashboard."
 }
 
 variable "node_selectors" {
