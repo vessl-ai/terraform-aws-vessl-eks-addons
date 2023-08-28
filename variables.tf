@@ -6,6 +6,7 @@ variable "cluster_oidc_issuer_url" {}
 variable "external_dns" {
   type = object({
     cluster_domain = string
+    extra_domains  = optional(list(string), [])
     namespace      = optional(string, "kube-system")
     version        = optional(string, "1.13.0")
     sources        = optional(list(string), ["service"])
