@@ -5,8 +5,13 @@ locals {
 }
 
 
-data "aws_route53_zone" "this" {
+data "aws_route53_zone" "cluster_domain" {
   name = local.domain_name
+}
+
+data "aws_route53_zone" "extra_domains" {
+  for_each = var.external_dns.extra_domains
+  name     = each.value
 }
 
 resource "kubernetes_service" "tcp" {
@@ -32,12 +37,15 @@ resource "kubernetes_service" "tcp" {
 module "aws_external_dns" {
   count = var.external_dns != null ? 1 : 0
 
-  source                  = "./modules/aws-external-dns"
-  eks_cluster_name        = var.cluster_name
-  route53_hosted_zone_ids = [data.aws_route53_zone.this.id]
-  k8s_create_namespace    = false
-  k8s_namespace           = var.external_dns.namespace
-  helm_chart_version      = var.external_dns.version
+  source           = "./modules/aws-external-dns"
+  eks_cluster_name = var.cluster_name
+  route53_hosted_zone_ids = concat(
+    [data.aws_route53_zone.cluster_domain.zone_id],
+    data.aws_route53_zone.extra_domains[*].zone_id,
+  )
+  k8s_create_namespace = false
+  k8s_namespace        = var.external_dns.namespace
+  helm_chart_version   = var.external_dns.version
   helm_values = merge(
     var.external_dns.helm_values,
     { for i, source in var.external_dns.sources : "sources[${i}]" => source },
