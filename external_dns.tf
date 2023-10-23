@@ -10,7 +10,7 @@ data "aws_route53_zone" "cluster_domain" {
 }
 
 data "aws_route53_zone" "extra_domains" {
-  for_each = toset(var.external_dns.extra_domains)
+  for_each = toset(try(var.external_dns.extra_domains, []))
   name     = each.value
 }
 
