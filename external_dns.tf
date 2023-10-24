@@ -6,10 +6,12 @@ locals {
 
 
 data "aws_route53_zone" "cluster_domain" {
-  name = local.domain_name
+  count = var.external_dns != null && var.ingress_nginx != null ? 1 : 0
+  name  = local.domain_name
 }
 
 data "aws_route53_zone" "extra_domains" {
+  count    = var.external_dns != null && var.ingress_nginx != null ? 1 : 0
   for_each = toset(try(var.external_dns.extra_domains, []))
   name     = each.value
 }
