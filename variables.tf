@@ -5,11 +5,12 @@ variable "cluster_oidc_issuer_url" {}
 
 variable "external_dns" {
   type = object({
-    cluster_domain = string
-    extra_domains  = optional(list(string), [])
-    namespace      = optional(string, "kube-system")
-    version        = optional(string, "1.13.0")
-    sources        = optional(list(string), ["service"])
+    cluster_domain             = string
+    cluster_hosted_zone_domain = optional(string, "")
+    extra_domains              = optional(list(string), [])
+    namespace                  = optional(string, "kube-system")
+    version                    = optional(string, "1.13.0")
+    sources                    = optional(list(string), ["service"])
     // https://github.com/kubernetes-sigs/external-dns/blob/bc61d4deb357c9283fda5b199c0ab52283a91b88/charts/external-dns/values.yaml
     helm_values = optional(map(any), {})
   })

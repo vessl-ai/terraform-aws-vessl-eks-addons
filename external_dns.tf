@@ -1,7 +1,7 @@
 locals {
   domain_parts  = try(split(".", var.external_dns.cluster_domain), [])
   domain_length = length(local.domain_parts)
-  domain_name   = try("${local.domain_parts[local.domain_length - 2]}.${local.domain_parts[local.domain_length - 1]}", "")
+  domain_name   = var.external_dns.cluster_hosted_zone_domain == "" ? try(join(".", slice(local.domain_parts, local.domain_length - 2, local.domain_length)), "") : var.external_dns.cluster_hosted_zone_domain
 }
 
 
