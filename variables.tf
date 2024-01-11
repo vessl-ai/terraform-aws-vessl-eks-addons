@@ -19,10 +19,12 @@ variable "external_dns" {
 
 variable "cert_manager" {
   type = object({
-    email              = string
-    ingress_class_name = string
-    namespace          = optional(string, "cert-manager")
-    version            = optional(string, "v1.13.3")
+    email                 = string
+    ingress_class_name    = string
+    namespace             = optional(string, "cert-manager")
+    version               = optional(string, "v1.13.3")
+    create_staging_issuer = optional(bool, false)
+    create_prod_issuer    = optional(bool, false)
   })
 }
 

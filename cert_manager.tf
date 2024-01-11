@@ -13,6 +13,7 @@ resource "helm_release" "cert_manager" {
 
 resource "kubernetes_manifest" "issuer_staging" {
   depends_on = [helm_release.cert_manager]
+  count      = var.cert_manager.create_staging_issuer ? 1 : 0
   manifest = {
     apiVersion = "cert-manager.io/v1"
     kind       = "Issuer"
@@ -25,6 +26,36 @@ resource "kubernetes_manifest" "issuer_staging" {
         email  = var.cert_manager.email
         privateKeySecretRef = {
           name = "letsencrypt-staging"
+        }
+        solvers = [
+          {
+            http01 = {
+              ingress = {
+                ingressClassName = var.cert_manager.ingress_class_name
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+
+resource "kubernetes_manifest" "issuer_prod" {
+  depends_on = [helm_release.cert_manager]
+  count      = var.cert_manager.create_prod_issuer ? 1 : 0
+  manifest = {
+    apiVersion = "cert-manager.io/v1"
+    kind       = "Issuer"
+    metadata = {
+      name = "letsencrypt-prod"
+    }
+    spec = {
+      acme = {
+        server = "https://acme-v02.api.letsencrypt.org/directory"
+        email  = var.cert_manager.email
+        privateKeySecretRef = {
+          name = "letsencrypt-prod"
         }
         solvers = [
           {
