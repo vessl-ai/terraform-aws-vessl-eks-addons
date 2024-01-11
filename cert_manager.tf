@@ -13,7 +13,7 @@ resource "helm_release" "cert_manager" {
 
 resource "kubernetes_manifest" "issuer_staging" {
   depends_on = [helm_release.cert_manager]
-  manifest = yamlencode({
+  manifest = {
     apiVersion = "cert-manager.io/v1"
     kind       = "Issuer"
     metadata = {
@@ -37,5 +37,5 @@ resource "kubernetes_manifest" "issuer_staging" {
         ]
       }
     }
-  })
+  }
 }
