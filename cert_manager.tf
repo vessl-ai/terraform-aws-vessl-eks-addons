@@ -11,15 +11,14 @@ resource "helm_release" "cert_manager" {
   }
 }
 
-resource "kubernetes_manifest" "issuer_staging" {
+resource "kubernetes_manifest" "cluster_issuer_staging" {
   depends_on = [helm_release.cert_manager]
-  count      = var.cert_manager.create_staging_issuer ? 1 : 0
+  count      = var.cert_manager.create_staging_cluster_issuer ? 1 : 0
   manifest = {
     apiVersion = "cert-manager.io/v1"
-    kind       = "Issuer"
+    kind       = "ClusterIssuer"
     metadata = {
-      name      = "letsencrypt-staging"
-      namespace = var.cert_manager.namespace
+      name = "letsencrypt-staging"
     }
     spec = {
       acme = {
@@ -42,15 +41,14 @@ resource "kubernetes_manifest" "issuer_staging" {
   }
 }
 
-resource "kubernetes_manifest" "issuer_prod" {
+resource "kubernetes_manifest" "cluster_issuer_prod" {
   depends_on = [helm_release.cert_manager]
-  count      = var.cert_manager.create_prod_issuer ? 1 : 0
+  count      = var.cert_manager.create_prod_cluster_issuer ? 1 : 0
   manifest = {
     apiVersion = "cert-manager.io/v1"
-    kind       = "Issuer"
+    kind       = "ClusterIssuer"
     metadata = {
-      name      = "letsencrypt-prod"
-      namespace = var.cert_manager.namespace
+      name = "letsencrypt-prod"
     }
     spec = {
       acme = {
