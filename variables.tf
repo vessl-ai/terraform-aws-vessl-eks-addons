@@ -35,6 +35,7 @@ variable "ingress_nginx" {
       // "external-dns.alpha.kubernetes.io/hostname"             = "*.example.com" // => To make the dns record point to the NLB created by this service
     })
     ssl_termination = optional(bool, true)
+    extra_chart_values = optional(list(string), [])
   })
   default = null
 }

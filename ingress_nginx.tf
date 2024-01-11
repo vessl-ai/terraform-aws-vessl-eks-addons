@@ -92,4 +92,6 @@ resource "helm_release" "ingress_nginx" {
       value = "linux"
     }
   }
+
+  values = var.ingress_nginx.extra_chart_values
 }
