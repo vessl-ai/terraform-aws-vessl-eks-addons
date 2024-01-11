@@ -18,7 +18,8 @@ resource "kubernetes_manifest" "issuer_staging" {
     apiVersion = "cert-manager.io/v1"
     kind       = "Issuer"
     metadata = {
-      name = "letsencrypt-staging"
+      name      = "letsencrypt-staging"
+      namespace = var.cert_manager.namespace
     }
     spec = {
       acme = {
@@ -48,7 +49,8 @@ resource "kubernetes_manifest" "issuer_prod" {
     apiVersion = "cert-manager.io/v1"
     kind       = "Issuer"
     metadata = {
-      name = "letsencrypt-prod"
+      name      = "letsencrypt-prod"
+      namespace = var.cert_manager.namespace
     }
     spec = {
       acme = {
