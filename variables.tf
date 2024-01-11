@@ -17,6 +17,15 @@ variable "external_dns" {
   default = null
 }
 
+variable "cert_manager" {
+  type = object(map(string), {
+    "namespace"          = optional(string, "cert-manager")
+    "version"            = optional(string, "v1.13.3")
+    "email"              = string
+    "ingress_class_name" = string
+  })
+}
+
 variable "ingress_nginx" {
   type = object({
     namespace = optional(string, "kube-system")
