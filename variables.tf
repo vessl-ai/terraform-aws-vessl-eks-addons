@@ -18,11 +18,11 @@ variable "external_dns" {
 }
 
 variable "cert_manager" {
-  type = object(map(string), {
-    "namespace"          = optional(string, "cert-manager")
-    "version"            = optional(string, "v1.13.3")
+  type = object({
     "email"              = string
     "ingress_class_name" = string
+    "namespace"          = optional(string, "cert-manager")
+    "version"            = optional(string, "v1.13.3")
   })
 }
 
@@ -43,7 +43,7 @@ variable "ingress_nginx" {
       // "service.beta.kubernetes.io/aws-load-balancer-ssl-cert" = aws_acm_certificate.cert.arn
       // "external-dns.alpha.kubernetes.io/hostname"             = "*.example.com" // => To make the dns record point to the NLB created by this service
     })
-    ssl_termination = optional(bool, true)
+    ssl_termination    = optional(bool, true)
     extra_chart_values = optional(list(string), [])
   })
   default = null
