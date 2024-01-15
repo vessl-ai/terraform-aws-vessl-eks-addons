@@ -17,20 +17,6 @@ variable "external_dns" {
   default = null
 }
 
-variable "cert_manager" {
-  type = object({
-    email                         = string
-    ingress_class_name            = string
-    dns_zone                      = string
-    hosted_zone_region            = string
-    hosted_zone_id                = string
-    namespace                     = optional(string, "cert-manager")
-    version                       = optional(string, "v1.13.3")
-    create_staging_cluster_issuer = optional(bool, false)
-    create_prod_cluster_issuer    = optional(bool, false)
-  })
-}
-
 variable "ingress_nginx" {
   type = object({
     namespace = optional(string, "kube-system")
