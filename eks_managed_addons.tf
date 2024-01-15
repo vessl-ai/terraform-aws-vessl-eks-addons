@@ -167,3 +167,21 @@ resource "kubernetes_storage_class_v1" "ebs-csi" {
   reclaim_policy      = "Delete"
   volume_binding_mode = "WaitForFirstConsumer"
 }
+
+resource "kubernetes_storage_class_v1" "gp3" {
+  count = var.ebs_csi_driver != null ? 1 : 0
+
+  metadata {
+    name = "gp3"
+  }
+
+  parameters = {
+    type = "gp3"
+  }
+
+  storage_provisioner = "ebs.csi.aws.com"
+  reclaim_policy      = "Delete"
+  volume_binding_mode = "WaitForFirstConsumer"
+}
+
+
