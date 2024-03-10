@@ -41,13 +41,5 @@ resource "helm_release" "external_dns" {
   namespace = var.k8s_namespace
   name      = var.helm_release_name
   version   = var.helm_chart_version
-  values    = [yamlencode(local.external_dns_helm_values)]
-
-  dynamic "set" {
-    for_each = var.helm_values
-    content {
-      name  = set.key
-      value = set.value
-    }
-  }
+  values    = [yamlencode(merge(local.external_dns_helm_values, var.helm_values))]
 }

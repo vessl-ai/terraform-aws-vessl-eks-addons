@@ -1,5 +1,5 @@
 variable "helm_values" {
-  type        = map(any)
+  type        = any
   default     = {}
   description = "Additional settings which will be passed to the Helm chart values, see https://artifacthub.io/packages/helm/bitnami/external-dns"
 }
