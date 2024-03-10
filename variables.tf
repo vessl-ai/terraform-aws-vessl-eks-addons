@@ -19,8 +19,9 @@ variable "external_dns" {
 
 variable "ingress_nginx" {
   type = object({
-    namespace = optional(string, "kube-system")
-    version   = optional(string, "4.7.0")
+    namespace        = optional(string, "kube-system")
+    create_namespace = optional(bool, false)
+    version          = optional(string, "4.7.0")
     // See: https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.5/guide/service/annotations
     service_annotations = optional(map(string), {
       "service.beta.kubernetes.io/aws-load-balancer-type"                    = "external"

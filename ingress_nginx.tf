@@ -31,11 +31,12 @@ locals {
 resource "helm_release" "ingress_nginx" {
   count = var.ingress_nginx != null ? 1 : 0
 
-  repository = "https://kubernetes.github.io/ingress-nginx"
-  chart      = "ingress-nginx"
-  name       = "ingress-nginx"
-  version    = var.ingress_nginx.version
-  namespace  = var.ingress_nginx.namespace
+  repository       = "https://kubernetes.github.io/ingress-nginx"
+  chart            = "ingress-nginx"
+  name             = "ingress-nginx"
+  version          = var.ingress_nginx.version
+  namespace        = var.ingress_nginx.namespace
+  create_namespace = var.ingress_nginx.create_namespace
 
   dynamic "set" {
     for_each = local.service_target_ports

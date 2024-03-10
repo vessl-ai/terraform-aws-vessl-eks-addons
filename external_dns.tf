@@ -20,7 +20,7 @@ resource "kubernetes_service" "tcp" {
 
   metadata {
     name      = "tcp"
-    namespace = var.external_dns.namespace
+    namespace = var.ingress_nginx.namespace
     annotations = {
       "external-dns.alpha.kubernetes.io/hostname"       = "tcp.${var.external_dns.cluster_domain}"
       "external-dns.alpha.kubernetes.io/endpoints-type" = "NodeExternalIP"
