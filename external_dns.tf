@@ -16,11 +16,12 @@ data "aws_route53_zone" "extra_domains" {
 }
 
 resource "kubernetes_service" "tcp" {
-  count = var.external_dns != null && var.ingress_nginx != null ? 1 : 0
+  depends_on = [helm_release.ingress_nginx]
+  count      = var.external_dns != null && var.ingress_nginx != null ? 1 : 0
 
   metadata {
     name      = "tcp"
-    namespace = var.external_dns.namespace
+    namespace = var.ingress_nginx.namespace
     annotations = {
       "external-dns.alpha.kubernetes.io/hostname"       = "tcp.${var.external_dns.cluster_domain}"
       "external-dns.alpha.kubernetes.io/endpoints-type" = "NodeExternalIP"
