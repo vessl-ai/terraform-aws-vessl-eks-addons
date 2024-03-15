@@ -3,21 +3,6 @@ locals {
     "vessl:component" = "addon/external-dns",
   })
 
-  external_dns_node_affinity = {
-    preferredDuringSchedulingIgnoredDuringExecution = [
-      for nodeSelector in var.node_selectors : {
-        weight = 1
-        preference = {
-          matchExpressions = [{
-            key      = nodeSelector.key
-            operator = "In"
-            values   = [nodeSelector.value]
-          }]
-        }
-      }
-    ]
-  }
-
   // https://github.com/kubernetes-sigs/external-dns/blob/bc61d4deb357c9283fda5b199c0ab52283a91b88/charts/external-dns/values.yaml
   external_dns_helm_values = {
     serviceAccount = {
@@ -28,7 +13,7 @@ locals {
       name   = var.k8s_service_account_name
     }
     affinity = {
-      nodeAffinity = local.external_dns_node_affinity
+      nodeAffinity = var.node_affinity
     }
     tolerations = var.tolerations
   }
