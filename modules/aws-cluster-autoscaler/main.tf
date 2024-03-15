@@ -5,21 +5,6 @@ locals {
     "vessl:component" = "addon/cluster-autoscaler"
   })
 
-  node_affinity = {
-    preferredDuringSchedulingIgnoredDuringExecution = [
-      for nodeSelector in var.node_selectors : {
-        weight = 1
-        preference = {
-          matchExpressions = [{
-            key      = nodeSelector.key
-            operator = "In"
-            values   = [nodeSelector.value]
-          }]
-        }
-      }
-    ]
-  }
-
   // https://github.com/kubernetes/autoscaler/blob/63eab4efdfe98f07ed59fa29839119290f0f5157/charts/cluster-autoscaler/values.yaml
   helm_values = {
     awsRegion = data.aws_region.current.name
@@ -56,14 +41,14 @@ locals {
     }
     expanderPriorities = <<EOT
       2:
-        - ".*-m[5|6][i]*-.*large-.*"
+        - ".*-m[5|6|7][i]*-.*large-.*"
       1:
         - ".*"
     EOT
-    tolerations        = var.tolerations
     affinity = {
-      nodeAffinity = local.node_affinity
+      nodeAffinity = var.node_affinity
     }
+    tolerations = var.tolerations
   }
 }
 
@@ -75,13 +60,5 @@ resource "helm_release" "cluster_autoscaler" {
   name      = var.helm_release_name
   version   = var.helm_chart_version
 
-  values = [yamlencode(local.helm_values)]
-
-  dynamic "set" {
-    for_each = var.helm_values
-    content {
-      name  = set.key
-      value = set.value
-    }
-  }
+  values = [yamlencode(merge(local.helm_values, var.helm_values))]
 }
