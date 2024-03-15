@@ -156,11 +156,14 @@ resource "aws_eks_addon" "ebs_csi_driver" {
   })
 }
 
-resource "kubernetes_storage_class_v1" "ebs-csi" {
+resource "kubernetes_storage_class_v1" "default_storage_class" {
   count = var.ebs_csi_driver != null ? 1 : 0
 
   metadata {
     name = var.ebs_csi_driver.storage_class_name
+    annotations = {
+      "storageclass.kubernetes.io/is-default-class" = "true"
+    }
   }
 
   storage_provisioner = "ebs.csi.aws.com"
@@ -168,20 +171,16 @@ resource "kubernetes_storage_class_v1" "ebs-csi" {
   volume_binding_mode = "WaitForFirstConsumer"
 }
 
-resource "kubernetes_storage_class_v1" "gp3" {
-  count = var.ebs_csi_driver != null ? 1 : 0
+resource "kubernetes_annotations" "gp2_storage_class_annotations" {
+  api_version = "storage.k8s.io/v1"
+  kind        = "StorageClass"
+  force       = "true"
 
   metadata {
-    name = "gp3"
+    name = "gp2"
   }
 
-  parameters = {
-    type = "gp3"
+  annotations = {
+    "storageclass.kubernetes.io/is-default-class" = "false"
   }
-
-  storage_provisioner = "ebs.csi.aws.com"
-  reclaim_policy      = "Delete"
-  volume_binding_mode = "WaitForFirstConsumer"
 }
-
-
