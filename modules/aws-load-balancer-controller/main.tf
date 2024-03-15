@@ -3,21 +3,6 @@ locals {
     "vessl:component" = "addon/load-balancer-controller",
   })
 
-  node_affinity = {
-    preferredDuringSchedulingIgnoredDuringExecution = [
-      for nodeSelector in var.node_selectors : {
-        weight = 1
-        preference = {
-          matchExpressions = [{
-            key      = nodeSelector.key
-            operator = "In"
-            values   = [nodeSelector.value]
-          }]
-        }
-      }
-    ]
-  }
-
   // https://github.com/kubernetes-sigs/aws-load-balancer-controller/blob/d177c898ddd86071eecc2fd918d72ebfb0af7892/helm/aws-load-balancer-controller/values.yaml
   helm_values = {
     clusterName = var.eks_cluster_name
@@ -33,7 +18,7 @@ locals {
     }
     tolerations = var.tolerations
     affinity = {
-      nodeAffinity = local.node_affinity
+      nodeAffinity = var.node_affinity
     }
     defaultTags = {
       for key, value in local.tags : key => value
