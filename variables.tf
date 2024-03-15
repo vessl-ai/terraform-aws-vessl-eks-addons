@@ -35,7 +35,7 @@ variable "ingress_nginx" {
       // "service.beta.kubernetes.io/aws-load-balancer-ssl-cert" = aws_acm_certificate.cert.arn
       // "external-dns.alpha.kubernetes.io/hostname"             = "*.example.com" // => To make the dns record point to the NLB created by this service
     })
-    ssl_termination    = optional(bool, true)
+    ssl_termination    = optional(bool, false)
     extra_chart_values = optional(list(string), [])
   })
   default = null
