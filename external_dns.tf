@@ -17,7 +17,7 @@ data "aws_route53_zone" "extra_domains" {
 
 resource "kubernetes_service" "tcp" {
   depends_on = [helm_release.ingress_nginx]
-  count      = var.external_dns != null && var.ingress_nginx != null ? 1 : 0
+  count      = var.external_dns != null && var.external_dns.tcp_nodeport && var.ingress_nginx != null ? 1 : 0
 
   metadata {
     name      = "tcp"
@@ -55,7 +55,7 @@ module "aws_external_dns" {
     },
     var.external_dns.helm_values,
   )
-  tolerations    = var.tolerations
-  node_selectors = var.node_selectors
-  tags           = var.tags
+  tolerations   = local.tolerations
+  node_affinity = local.node_affinity
+  tags          = var.tags
 }
