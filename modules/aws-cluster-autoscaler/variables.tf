@@ -1,5 +1,5 @@
 variable "helm_values" {
-  type        = map(any)
+  type        = any
   default     = {}
   description = "Additional settings which will be passed to the Helm chart values, see https://artifacthub.io/packages/helm/bitnami/external-dns"
 }
@@ -69,23 +69,12 @@ variable "tags" {
   }
 }
 
-variable "node_selectors" {
-  type = list(object({
-    key   = string
-    value = string
-  }))
-  default = [{
-    key   = "v1.k8s.vessl.ai/dedicated"
-    value = "manager"
-  }]
+variable "node_affinity" {
+  type    = map(any)
+  default = {}
 }
 
 variable "tolerations" {
-  type = list(object({
-    key      = string
-    operator = string
-    value    = optional(string)
-    effect   = optional(string)
-  }))
+  type    = list(any)
   default = []
 }

@@ -11,7 +11,7 @@ locals {
       effect   = "NoSchedule"
     }
   ]
-  eks_addon_tolerations = concat(var.tolerations, local.eks_addon_default_tolerations)
+  eks_addon_tolerations = concat(local.tolerations, local.eks_addon_default_tolerations)
 }
 
 resource "aws_eks_addon" "coredns" {
@@ -32,20 +32,7 @@ resource "aws_eks_addon" "coredns" {
       }
     ]
     affinity = {
-      nodeAffinity = {
-        preferredDuringSchedulingIgnoredDuringExecution = [
-          for nodeSelector in var.node_selectors : {
-            weight = 1
-            preference = {
-              matchExpressions = [{
-                key      = nodeSelector.key
-                operator = "In"
-                values   = [nodeSelector.value]
-              }]
-            }
-          }
-        ]
-      }
+      nodeAffinity = local.node_affinity
     }
   })
 }
@@ -78,7 +65,7 @@ module "ebs_csi_irsa_role" {
   count = var.ebs_csi_driver != null ? 1 : 0
 
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "5.22.0"
+  version = "5.37.1"
 
   role_name             = "${var.cluster_name}-ebs-csi"
   attach_ebs_csi_policy = true
@@ -115,33 +102,7 @@ resource "aws_eks_addon" "ebs_csi_driver" {
         }
       ]
       affinity = {
-        nodeAffinity = {
-          requiredDuringSchedulingIgnoredDuringExecution = {
-            nodeSelectorTerms = [
-              {
-                matchExpressions = [
-                  {
-                    key      = "eks.amazonaws.com/compute-type"
-                    operator = "NotIn"
-                    values   = ["fargate"]
-                  }
-                ]
-              }
-            ]
-          }
-          preferredDuringSchedulingIgnoredDuringExecution = [
-            for nodeSelector in var.node_selectors : {
-              weight = 1
-              preference = {
-                matchExpressions = [{
-                  key      = nodeSelector.key
-                  operator = "In"
-                  values   = [nodeSelector.value]
-                }]
-              }
-            }
-          ]
-        }
+        nodeAffinity = local.node_affinity
       }
     }
     node = {

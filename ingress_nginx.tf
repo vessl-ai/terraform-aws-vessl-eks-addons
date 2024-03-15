@@ -1,31 +1,46 @@
 locals {
-  ingress_nginx_components = [
-    "controller",
-    "controller.admissionWebhooks.patch",
-  ]
-  ingress_nginx_node_selectors = distinct(flatten([
-    for component in local.ingress_nginx_components : [
-      for node_selector in var.node_selectors : {
-        component = component
-        key       = node_selector.key
-        value     = node_selector.value
+  // https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml
+  ingress_nginx_helm_values = {
+    controller = {
+      service = {
+        annotations = var.ingress_nginx.service_annotations,
+        targetPorts = try(var.ingress_nginx.ssl_termination, false) ? {
+          http  = "http"
+          https = "http"
+          } : {
+          http  = "http"
+          https = "https"
+        }
       }
-    ]
-  ]))
-  ingress_nginx_tolerations = distinct(flatten([
-    for component in local.ingress_nginx_components : [
-      for toleration in var.tolerations : {
-        component = component
-        key       = toleration.key
-        operator  = toleration.operator
-        effect    = toleration.effect
+      admissionWebhooks = {
+        patch = {
+          tolerations = local.tolerations
+          nodeSelector = merge(
+            { for expression in var.node_affinity : expression.key => expression.values[0] },
+            { "kubernetes.io/os" : "linux" },
+          )
+        }
       }
-    ]
-  ]))
-  service_target_ports = try(var.ingress_nginx.ssl_termination, false) ? {
-    http  = "http",
-    https = "http",
-  } : {}
+      resources = {
+        requests = {
+          cpu    = "300m"
+          memory = "500Mi"
+        }
+      }
+      minAvailable = 2
+      autoscaling = {
+        enabled                           = true
+        minReplicas                       = 2
+        maxReplicas                       = 11
+        targetCPUUtilizationPercentage    = 50
+        targetMemoryUtilizationPercentage = 80
+      }
+      affinity = {
+        nodeAffinity = local.node_affinity
+      }
+      tolerations = local.tolerations
+    }
+  }
 }
 
 resource "helm_release" "ingress_nginx" {
@@ -37,62 +52,5 @@ resource "helm_release" "ingress_nginx" {
   version          = var.ingress_nginx.version
   namespace        = var.ingress_nginx.namespace
   create_namespace = var.ingress_nginx.create_namespace
-
-  dynamic "set" {
-    for_each = local.service_target_ports
-    content {
-      name  = "controller.service.targetPorts.${set.key}"
-      value = set.value
-    }
-  }
-
-  dynamic "set" {
-    for_each = var.ingress_nginx.service_annotations
-    content {
-      name  = "controller.service.annotations.${replace(set.key, ".", "\\.")}"
-      value = replace(set.value, ",", "\\,")
-    }
-  }
-
-  dynamic "set" {
-    for_each = local.ingress_nginx_node_selectors
-    content {
-      name  = "${set.value.component}.nodeSelector.${replace(set.value.key, ".", "\\.")}"
-      value = set.value.value
-    }
-  }
-
-  dynamic "set" {
-    for_each = local.ingress_nginx_tolerations
-    content {
-      name  = "${set.value.component}.tolerations[0].key"
-      value = set.value.key
-    }
-  }
-
-  dynamic "set" {
-    for_each = local.ingress_nginx_tolerations
-    content {
-      name  = "${set.value.component}.tolerations[0].operator"
-      value = set.value.operator
-    }
-  }
-
-  dynamic "set" {
-    for_each = local.ingress_nginx_tolerations
-    content {
-      name  = "${set.value.component}.tolerations[0].effect"
-      value = set.value.effect
-    }
-  }
-
-  dynamic "set" {
-    for_each = toset(local.ingress_nginx_components)
-    content {
-      name  = "${set.key}.nodeSelector.kubernetes\\.io/os"
-      value = "linux"
-    }
-  }
-
-  values = var.ingress_nginx.extra_chart_values
+  values           = var.ingress_nginx.extra_chart_values
 }
