@@ -7,6 +7,7 @@ module "aws_load_balancer_controller" {
   oidc_provider_arn  = var.cluster_oidc_provider_arn
   k8s_namespace      = var.load_balancer_controller.namespace
   helm_chart_version = var.load_balancer_controller.version
-  tolerations        = var.tolerations
+  node_affinity      = local.node_affinity
+  tolerations        = local.tolerations
   tags               = var.tags
 }
