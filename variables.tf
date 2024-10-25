@@ -9,7 +9,7 @@ variable "external_dns" {
     cluster_hosted_zone_domain = optional(string, "")
     extra_domains              = optional(list(string), [])
     namespace                  = optional(string, "kube-system")
-    version                    = optional(string, "1.14.3")
+    version                    = optional(string, "1.15.0")
     sources                    = optional(list(string), ["service"])
     tcp_nodeport               = optional(bool, false)
     // https://github.com/kubernetes-sigs/external-dns/blob/master/charts/external-dns/values.yaml
@@ -22,7 +22,7 @@ variable "ingress_nginx" {
   type = object({
     namespace           = optional(string, "kube-system")
     create_namespace    = optional(bool, false)
-    version             = optional(string, "4.10.0")
+    version             = optional(string, "4.11.3")
     service_annotations = optional(map(string), {})
     service_type        = optional(string, "LoadBalancer")
     ssl_termination     = optional(bool, false)
@@ -34,7 +34,7 @@ variable "ingress_nginx" {
 variable "load_balancer_controller" {
   type = object({
     namespace = optional(string, "kube-system")
-    version   = optional(string, "1.7.1")
+    version   = optional(string, "1.9.0")
   })
   default = null
 }
@@ -42,7 +42,7 @@ variable "load_balancer_controller" {
 variable "cluster_autoscaler" {
   type = object({
     namespace = optional(string, "kube-system")
-    version   = optional(string, "9.35.0")
+    version   = optional(string, "9.43.1")
   })
   default = null
 }
