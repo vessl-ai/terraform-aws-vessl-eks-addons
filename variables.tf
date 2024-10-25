@@ -99,6 +99,11 @@ variable "node_affinity" {
   }]
 }
 
+variable "use_gp2" {
+  type    = bool
+  default = false
+}
+
 variable "tolerations" {
   type = list(object({
     key      = string

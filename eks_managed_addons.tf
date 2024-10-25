@@ -133,6 +133,8 @@ resource "kubernetes_storage_class_v1" "default_storage_class" {
 }
 
 resource "kubernetes_annotations" "gp2_storage_class_annotations" {
+  count = var.use_gp2 ? 0 : 1
+
   api_version = "storage.k8s.io/v1"
   kind        = "StorageClass"
   force       = "true"

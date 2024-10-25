@@ -6,7 +6,7 @@ locals {
 
 
 data "aws_route53_zone" "cluster_domain" {
-  count = var.external_dns != null && var.ingress_nginx != null ? 1 : 0
+  count = var.external_dns != null || var.ingress_nginx != null ? 1 : 0
   name  = local.domain_name
 }
 
@@ -42,7 +42,7 @@ module "aws_external_dns" {
   source           = "./modules/aws-external-dns"
   eks_cluster_name = var.cluster_name
   route53_hosted_zone_ids = concat(
-    [data.aws_route53_zone.cluster_domain[0].zone_id],
+    [for main_zone in data.aws_route53_zone.cluster_domain : main_zone.zone_id],
     [for extra_zone in data.aws_route53_zone.extra_domains : extra_zone.zone_id],
   )
   k8s_create_namespace = false
