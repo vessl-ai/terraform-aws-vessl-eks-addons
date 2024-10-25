@@ -3,8 +3,8 @@ locals {
   ingress_nginx_helm_values = {
     controller = {
       service = {
-        type        = var.ingress_nginx.service_type
-        annotations = var.ingress_nginx.service_annotations,
+        type        = try(var.ingress_nginx.service_type, "LoadBalancer")
+        annotations = try(var.ingress_nginx.service_annotations, {}),
         targetPorts = try(var.ingress_nginx.ssl_termination, false) ? {
           http  = "http"
           https = "http"
