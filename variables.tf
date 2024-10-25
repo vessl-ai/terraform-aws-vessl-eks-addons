@@ -86,6 +86,11 @@ variable "metrics_server" {
   default = null
 }
 
+variable "use_gp2" {
+  type    = bool
+  default = false
+}
+
 variable "node_affinity" {
   type = list(object({
     key      = string

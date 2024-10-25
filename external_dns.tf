@@ -6,7 +6,7 @@ locals {
 
 
 data "aws_route53_zone" "cluster_domain" {
-  count = var.external_dns != null && var.ingress_nginx != null ? 1 : 0
+  count = var.external_dns != null ? 1 : 0
   name  = local.domain_name
 }
 
