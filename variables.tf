@@ -76,6 +76,13 @@ variable "ebs_csi_driver" {
   default = null
 }
 
+variable "pod_identity_agent" {
+  type = object({
+    version = optional(string, "v1.3.7-eksbuild.2")
+  })
+  default = null
+}
+
 variable "metrics_server" {
   type = object({
     namespace = optional(string, "kube-system")

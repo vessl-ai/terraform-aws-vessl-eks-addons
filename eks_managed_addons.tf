@@ -57,6 +57,16 @@ resource "aws_eks_addon" "vpc_cni" {
   resolve_conflicts_on_update = "OVERWRITE"
 }
 
+resource "aws_eks_addon" "pod_identity_agent" {
+  count = var.pod_identity_agent != null ? 1 : 0
+
+  cluster_name                = var.cluster_name
+  addon_name                  = "eks-pod-identity-agent"
+  addon_version               = var.pod_identity_agent.version
+  resolve_conflicts_on_create = "OVERWRITE"
+  resolve_conflicts_on_update = "OVERWRITE"
+}
+
 data "aws_iam_policy" "ebs_csi_policy" {
   arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
 }
