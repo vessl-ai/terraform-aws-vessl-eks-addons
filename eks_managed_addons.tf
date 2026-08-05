@@ -55,6 +55,10 @@ resource "aws_eks_addon" "vpc_cni" {
   addon_version               = var.vpc_cni.version
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
+
+  configuration_values = var.vpc_cni.env != null ? jsonencode({
+    env = var.vpc_cni.env
+  }) : null
 }
 
 resource "aws_eks_addon" "pod_identity_agent" {

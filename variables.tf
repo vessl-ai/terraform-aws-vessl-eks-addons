@@ -64,6 +64,10 @@ variable "kube_proxy" {
 variable "vpc_cni" {
   type = object({
     version = optional(string, "v1.16.3-eksbuild.2")
+    # Environment variables for the aws-node daemonset, passed through the
+    # addon's configuration_values (e.g. WARM_IP_TARGET, MINIMUM_IP_TARGET).
+    # All values must be strings.
+    env = optional(map(string))
   })
   default = null
 }
