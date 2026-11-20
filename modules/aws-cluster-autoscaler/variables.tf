@@ -4,6 +4,12 @@ variable "helm_values" {
   description = "Additional settings which will be passed to the Helm chart values, see https://artifacthub.io/packages/helm/bitnami/external-dns"
 }
 
+variable "extra_args" {
+  type        = map(string)
+  default     = {}
+  description = "cluster-autoscaler flags merged over the defaults, e.g. { \"skip-nodes-with-local-storage\" = \"false\" }."
+}
+
 variable "eks_cluster_name" {
   type        = string
   description = "The name of the cluster to install addon."
