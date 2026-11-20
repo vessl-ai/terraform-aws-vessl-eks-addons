@@ -41,8 +41,9 @@ variable "load_balancer_controller" {
 
 variable "cluster_autoscaler" {
   type = object({
-    namespace = optional(string, "kube-system")
-    version   = optional(string, "9.43.1")
+    namespace  = optional(string, "kube-system")
+    version    = optional(string, "9.43.1")
+    extra_args = optional(map(string), {})
   })
   default = null
 }

@@ -33,12 +33,12 @@ locals {
         }
       }
     }
-    extraArgs = {
+    extraArgs = merge({
       "balance-similar-node-groups" = "true"
       "scale-down-delay-after-add"  = "10s"
       "scale-down-unneeded-time"    = "3m"
       "expander"                    = "priority"
-    }
+    }, var.extra_args)
     expanderPriorities = <<EOT
       2:
         - ".*-m[5|6|7][i]*-.*large-.*"
