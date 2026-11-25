@@ -69,6 +69,8 @@ variable "vpc_cni" {
     # addon's configuration_values (e.g. WARM_IP_TARGET, MINIMUM_IP_TARGET).
     # All values must be strings.
     env = optional(map(string))
+    # EKS expects enableNetworkPolicy as a string boolean when provided.
+    enable_network_policy = optional(bool)
   })
   default = null
 }

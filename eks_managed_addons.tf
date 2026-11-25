@@ -56,9 +56,10 @@ resource "aws_eks_addon" "vpc_cni" {
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 
-  configuration_values = var.vpc_cni.env != null ? jsonencode({
-    env = var.vpc_cni.env
-  }) : null
+  configuration_values = var.vpc_cni.env != null || var.vpc_cni.enable_network_policy != null ? jsonencode(merge(
+    var.vpc_cni.env != null ? { env = var.vpc_cni.env } : {},
+    var.vpc_cni.enable_network_policy != null ? { enableNetworkPolicy = tostring(var.vpc_cni.enable_network_policy) } : {},
+  )) : null
 }
 
 resource "aws_eks_addon" "pod_identity_agent" {
